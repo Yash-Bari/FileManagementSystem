@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="upload-container">
+        <h2 class="upload-heading">Upload a File to "{{ folder.name }}"</h2>
+        <form method="post" enctype="multipart/form-data" class="upload-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.name.id_for_label }}" class="form-label">File Name:</label>
+                {{ form.name }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.file.id_for_label }}" class="form-label">Choose a File:</label>
+                {{ form.file }}
+            </div>
+            <div class="btn-container">
+                <button type="submit" class="btn btn-upload">Upload File</button>
+                <a href="{% url 'home' %}" class="btn btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <style>
+        /* Add your CSS styles here for enhanced template */
+        .upload-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-heading {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 28px;
+            color: #3498db;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: bold;
+            font-size: 18px;
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .btn-container {
+            text-align: right;
+        }
+
+        .btn-upload, .btn-cancel {
+            text-transform: uppercase;
+            font-weight: bold;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        .btn-upload {
+            background-color: #3498db;
+            color: #fff;
+            margin-right: 10px;
+        }
+
+        .btn-cancel {
+            background-color: #ccc;
+            color: #333;
+        }
+
+        /* Style the buttons on hover */
+        .btn-upload:hover {
+            background-color: #267db0;
+        }
+
+        .btn-cancel:hover {
+            background-color: #b0b0b0;
+        }
+    </style>
+{% endblock %}

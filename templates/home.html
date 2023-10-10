@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="welcome">
+        <h1>Welcome, {{ user.username }}!</h1>
+    </div>
+
+    <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Search files and folders..." oninput="searchSuggestions()">
+        <ul class="suggestions" id="suggestions-list"></ul>
+    </div>
+
+    <div class="content-container">
+        <section class="folders">
+            <h2>Your Folders</h2>
+            <ul class="folder-list" id="folder-list">
+                {% for folder in folders %}
+                    <li class="folder">
+                        <span class="folder-icon">&#128194;</span>
+                        <span class="folder-name">{{ folder.name }}</span>
+                        <div class="folder-actions">
+                            <a href="{% url 'upload_file' folder.id %}" class="btn btn-upload">Upload</a>
+                            <a href="{% url 'delete_folder' folder.id %}" class="btn btn-delete">Delete</a>
+                        </div>
+                    </li>
+                {% empty %}
+                    <li class="empty-message">No folders yet.</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="files">
+            <h2>Your Files</h2>
+            <div class="file-scroll">
+                <ul class="file-sublist" id="file-list">
+                    {% for folder in folders %}
+                        <li class="folder-files">
+                            <h3 class="folder-title">{{ folder.name }}</h3>
+                            <ul>
+                                {% for file in folder.file_set.all %}
+                                    <li class="file">
+                                        <span class="file-icon">&#128462;</span>
+                                        <span class="file-name">{{ file.name }}</span>
+                                        <a href="{{ file.file.url }}" class="btn btn-download">Download</a>
+                                        <a href="{{ file.file.url }}" class="btn btn-view" target="_blank">View</a>
+                                    </li>
+                                {% empty %}
+                                    <li class="empty-message">No files in this folder.</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <style>
+        /* Add your CSS styles here for enhanced template */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .welcome {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #3498db;
+            color: #fff;
+            font-size: 36px;
+        }
+
+        .search-bar {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #search-input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .suggestions {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: none; /* Initially hidden */
+        }
+
+        .suggestions li {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+
+        .suggestions li:hover {
+            background-color: #e0e0e0;
+        }
+
+        .content-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .folders, .files {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+            margin-right: 20px;
+        }
+
+        .folder-list, .file-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .folder {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .folder-icon {
+            font-size: 32px;
+            margin-right: 10px;
+        }
+
+        .folder-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .folder-actions .btn {
+            margin-left: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+            border-radius: 5px;
+            padding: 8px 16px;
+            font-size: 16px;
+        }
+
+        .btn-upload {
+            background-color: #4caf50;
+            color: #fff;
+        }
+
+        .btn-delete {
+            background-color: #f44336;
+            color: #fff;
+        }
+
+        .empty-message {
+            text-align: center;
+            font-style: italic;
+            color: #888;
+            font-size: 18px;
+        }
+
+        .folder-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .file-scroll {
+            max-height: 200px;
+            overflow-y: auto;
+            padding-top: 10px; /* Added padding for spacing */
+        }
+
+        .file-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .file {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .file-icon {
+            font-size: 28px;
+            margin-right: 10px;
+        }
+
+        .file-name {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .btn-download, .btn-view {
+            background-color: #3498db;
+            color: #fff;
+            text-transform: uppercase;
+            font-weight: bold;
+            border-radius: 5px;
+            padding: 8px 16px;
+            font-size: 16px;
+            margin-left: auto;
+            text-decoration: none; /* Remove underline */
+        }
+
+        .btn-view {
+            margin-left: 10px;
+            background-color: #2ecc71; /* Different color for "View" button */
+        }
+    </style>
+
+    <script>
+        const searchInput = document.getElementById('search-input');
+        const suggestionsList = document.getElementById('suggestions-list');
+
+        function searchSuggestions() {
+            const searchQuery = searchInput.value.trim().toLowerCase();
+            const folders = document.querySelectorAll('.folder-name');
+            const files = document.querySelectorAll('.file-name');
+            const suggestions = [];
+
+            if (searchQuery === '') {
+                suggestionsList.innerHTML = ''; // Clear suggestions if search bar is empty
+                suggestionsList.style.display = 'none';
+                return;
+            }
+
+            // Search for folder names
+            folders.forEach((folder) => {
+                const folderName = folder.textContent.toLowerCase();
+                if (folderName.includes(searchQuery)) {
+                    suggestions.push(`<li onclick="selectSuggestion('${folderName}')">${folderName} (Folder)</li>`);
+                }
+            });
+
+            // Search for file names
+            files.forEach((file) => {
+                const fileName = file.textContent.toLowerCase();
+                if (fileName.includes(searchQuery)) {
+                    suggestions.push(`<li onclick="selectSuggestion('${fileName}')">${fileName} (File)</li>`);
+                }
+            });
+
+            // Display suggestions
+            if (suggestions.length > 0) {
+                suggestionsList.innerHTML = suggestions.join('');
+                suggestionsList.style.display = 'block';
+            } else {
+                suggestionsList.innerHTML = '';
+                suggestionsList.style.display = 'none';
+            }
+        }
+
+        function selectSuggestion(suggestion) {
+            searchInput.value = suggestion;
+            suggestionsList.innerHTML = '';
+            suggestionsList.style.display = 'none';
+            searchFiles();
+        }
+
+        function searchFiles() {
+            const searchQuery = searchInput.value.trim().toLowerCase();
+            const folders = document.querySelectorAll('.folder');
+            const files = document.querySelectorAll('.file');
+
+            folders.forEach((folder) => {
+                const folderName = folder.querySelector('.folder-name').textContent.toLowerCase();
+                if (folderName.includes(searchQuery)) {
+                    folder.style.display = 'block';
+                } else {
+                    folder.style.display = 'none';
+                }
+            });
+
+            files.forEach((file) => {
+                const fileName = file.querySelector('.file-name').textContent.toLowerCase();
+                const fileElement = file.parentElement.parentElement; // Get the file's parent folder element
+                if (fileName.includes(searchQuery)) {
+                    file.style.display = 'block';
+                } else {
+                    file.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</html>
+{% endblock %}
